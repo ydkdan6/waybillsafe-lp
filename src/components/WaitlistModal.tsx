@@ -3,8 +3,13 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, ArrowRight, Loader2, X } from "lucide-react";
 import { z } from "zod";
+import emailjs from "@emailjs/browser";
 
 const emailSchema = z.string().trim().email({ message: "Please enter a valid email" }).max(255);
+
+const EMAILJS_SERVICE_ID = "service_6yqtgcp";
+const EMAILJS_TEMPLATE_ID = "template_acuaugz";
+const EMAILJS_PUBLIC_KEY = "WSoxcq_bYe_pAzO-K";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -16,6 +21,19 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const sendWelcomeEmail = async (userEmail: string) => {
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        { to_email: userEmail, email: userEmail },
+        EMAILJS_PUBLIC_KEY
+      );
+    } catch (err) {
+      console.error("Failed to send welcome email:", err);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +53,9 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
         .insert([{ email: validation.data }]);
 
       if (supabaseError) throw supabaseError;
+      
+      // Send welcome email via EmailJS
+      await sendWelcomeEmail(validation.data);
       
       onSuccess();
       onClose();
