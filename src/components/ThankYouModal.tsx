@@ -26,9 +26,9 @@ const ThankYouModal = ({ isOpen, onClose }: ThankYouModalProps) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm mx-4"
+            className="fixed left-4 right-4 top-1/2 -translate-y-1/2 z-50 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md md:max-w-lg"
           >
-            <div className="glass-card p-8 text-center relative overflow-hidden">
+            <div className="glass-card p-6 sm:p-8 md:p-10 text-center relative overflow-hidden">
               {/* Close button */}
               <button
                 onClick={onClose}
@@ -76,10 +76,10 @@ const ThankYouModal = ({ isOpen, onClose }: ThankYouModalProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="font-display text-2xl font-bold text-foreground mb-2">
+                <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
                   You're In! 🎉
                 </h3>
-                <p className="text-muted-foreground text-sm mb-6">
+                <p className="text-muted-foreground text-sm sm:text-base mb-6">
                   Welcome to the WaybillSafe pilot program. We'll reach out soon with your exclusive early access.
                 </p>
               </motion.div>
