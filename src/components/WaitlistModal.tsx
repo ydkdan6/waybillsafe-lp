@@ -52,7 +52,15 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
         .from("waitlist")
         .insert([{ email: validation.data }]);
 
-      if (supabaseError) throw supabaseError;
+      if (supabaseError) {
+        // Handle duplicate email error
+        if (supabaseError.code === "23505") {
+          setError("This email is already on the waitlist!");
+          setIsLoading(false);
+          return;
+        }
+        throw supabaseError;
+      }
       
       // Send welcome email via EmailJS
       await sendWelcomeEmail(validation.data);
