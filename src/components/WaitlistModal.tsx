@@ -3,13 +3,29 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, ArrowRight, Loader2, X } from "lucide-react";
 import { z } from "zod";
-import emailjs from "@emailjs/browser";
 
-const emailSchema = z.string().trim().email({ message: "Please enter a valid email" }).max(255);
+const emailSchema = z.string().trim().email({
+  message: "Please enter a valid email"
+}).max(255);
 
 const EMAILJS_SERVICE_ID = "service_6yqtgcp";
 const EMAILJS_TEMPLATE_ID = "template_acuaugz";
 const EMAILJS_PUBLIC_KEY = "WSoxcq_bYe_pAzO-K";
+
+// Type declaration for emailjs on window
+declare global {
+  interface Window {
+    emailjs: {
+      send: (
+        serviceID: string,
+        templateID: string,
+        templateParams: Record<string, any>,
+        publicKey: string
+      ) => Promise<any>;
+      init: (publicKey: string) => void;
+    };
+  }
+}
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -24,10 +40,19 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
 
   const sendWelcomeEmail = async (userEmail: string) => {
     try {
-      await emailjs.send(
+      // Check if emailjs is loaded
+      if (typeof window.emailjs === "undefined") {
+        console.error("EmailJS not loaded. Make sure the CDN script is included in index.html");
+        return;
+      }
+
+      await window.emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
-        { to_email: userEmail, email: userEmail },
+        {
+          to_email: userEmail,
+          email: userEmail
+        },
         EMAILJS_PUBLIC_KEY
       );
     } catch (err) {
@@ -61,10 +86,10 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
         }
         throw supabaseError;
       }
-      
+
       // Send welcome email via EmailJS
       await sendWelcomeEmail(validation.data);
-      
+
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -84,93 +109,93 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
-          
+
           {/* Modal - centered */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", damping: 20 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          >
-            <div className="glass-card p-6 sm:p-8 md:p-10 w-full max-w-sm sm:max-w-md relative overflow-hidden">
-              {/* Close button */}
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-secondary/50 flex items-center justify-center hover:bg-secondary transition-colors z-10"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md pointer-events-auto"
+            >
+              <div className="glass-card p-8 rounded-2xl relative overflow-hidden">
+                {/* Close button */}
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
 
-              {/* Header */}
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-electric" />
-                <span className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                  Early Access
-                </span>
-              </div>
-
-              <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
-                Join the <span className="text-gradient">Stealth Pilot</span>
-              </h2>
-              
-              <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8 text-center">
-                Be among the first vendors to experience secure cross-border shipping
-              </p>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide mb-2 block">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@yourbrand.com"
-                    className="input-glass"
-                  />
+                {/* Header */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 mb-4">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">Early Access</span>
+                  </div>
+                  <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    Join the Stealth Pilot
+                  </h2>
+                  <p className="text-gray-400">
+                    Be among the first vendors to experience secure cross-border shipping
+                  </p>
                 </div>
 
-                {error && (
-                  <div className="text-destructive text-sm text-center">
-                    {error}
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@yourbrand.com"
+                      className="input-glass"
+                    />
                   </div>
-                )}
 
-                <motion.button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn-electric w-full flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Get Early Access</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-sm text-red-400"
+                    >
+                      {error}
+                    </motion.p>
                   )}
-                </motion.button>
-              </form>
 
-              {/* Trust indicators */}
-              <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                <span>🔒 No spam</span>
-                <span>•</span>
-                <span>First 100 users free</span>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="btn-primary w-full group"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Get Early Access
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Trust indicators */}
+                <p className="text-center text-xs text-gray-500 mt-4">
+                  🔒 No spam • First 100 users free
+                </p>
+
+                {/* Decorative gradient */}
+                <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
               </div>
-
-              {/* Decorative gradient */}
-              <div className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-electric/20 to-transparent blur-3xl" />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
