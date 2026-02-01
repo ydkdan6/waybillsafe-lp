@@ -146,9 +146,9 @@ const WaitlistCard = ({ onSuccess }: WaitlistCardProps) => {
 
       {/* Trust indicators */}
       <div className="mt-6 flex items-center gap-4 text-xs text-muted-foreground">
-        <span>🔒 No spam</span>
+        <span> No spam</span>
         <span>•</span>
-        <span>First 100 users free</span>
+        <span>Easy onboarding</span>
       </div>
     </div>
   );
