@@ -2,6 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, ArrowRight, Loader2, X } from "lucide-react";
+import { z } from "zod";
+
+const emailSchema = z.string().trim().email({ message: "Please enter a valid email" }).max(255);
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -11,26 +14,25 @@ interface WaitlistModalProps {
 
 const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
   const [email, setEmail] = useState("");
-  const [brandName, setBrandName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const validation = emailSchema.safeParse(email);
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { error: supabaseError } = await supabase
         .from("waitlist")
-        .insert([
-          {
-            email,
-            brand_name: brandName || null,
-            phone_number: phoneNumber || null,
-          },
-        ]);
+        .insert([{ email: validation.data }]);
 
       if (supabaseError) throw supabaseError;
       
@@ -56,15 +58,15 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
           />
           
-          {/* Modal */}
+          {/* Modal - centered */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 20 }}
-            className="fixed left-4 right-4 top-1/2 -translate-y-1/2 z-50 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md md:max-w-lg"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="glass-card p-6 sm:p-8 md:p-10 relative overflow-hidden">
+            <div className="glass-card p-6 sm:p-8 md:p-10 w-full max-w-sm sm:max-w-md relative overflow-hidden">
               {/* Close button */}
               <button
                 onClick={onClose}
@@ -93,7 +95,7 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-xs text-muted-foreground uppercase tracking-wide mb-2 block">
-                    Email Address *
+                    Email Address
                   </label>
                   <input
                     type="email"
@@ -101,32 +103,6 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@yourbrand.com"
-                    className="input-glass"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide mb-2 block">
-                    Brand Name
-                  </label>
-                  <input
-                    type="text"
-                    value={brandName}
-                    onChange={(e) => setBrandName(e.target.value)}
-                    placeholder="Your brand or business name"
-                    className="input-glass"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide mb-2 block">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+234 XXX XXX XXXX"
                     className="input-glass"
                   />
                 </div>
@@ -140,7 +116,7 @@ const WaitlistModal = ({ isOpen, onClose, onSuccess }: WaitlistModalProps) => {
                 <motion.button
                   type="submit"
                   disabled={isLoading}
-                  className="btn-electric w-full flex items-center justify-center gap-2 mt-6"
+                  className="btn-electric w-full flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
