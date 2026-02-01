@@ -20,7 +20,7 @@ const SolutionCard = () => {
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0"
         >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-success" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-gradient-to-r from-electric to-electric-glow" />
         </motion.div>
       </motion.div>
 
