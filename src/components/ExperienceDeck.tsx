@@ -83,9 +83,6 @@ const ExperienceDeck = () => {
 
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-electric to-electric-glow flex items-center justify-center">
-            <span className="text-white font-bold text-sm">W</span>
-          </div>
           <span className="font-display font-semibold text-foreground hidden sm:block">
             WaybillSafe
           </span>

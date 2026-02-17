@@ -8,7 +8,7 @@ const emailSchema = z.string().trim().email({
   message: "Please enter a valid email"
 }).max(255);
 
-const EMAILJS_SERVICE_ID = "service_6yqtgcp";
+const EMAILJS_SERVICE_ID = "service_icorah9";
 const EMAILJS_TEMPLATE_ID = "template_acuaugz";
 const EMAILJS_PUBLIC_KEY = "WSoxcq_bYe_pAzO-K";
 
